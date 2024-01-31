@@ -86,6 +86,8 @@ STATISTIC(OmittedForNonExtendUses,
           "Number of compares not eliminated as they have non-extending uses.");
 STATISTIC(NumP9Setb,
           "Number of compares lowered to setb.");
+STATISTIC(NumEquivBinExp,
+          "Number of equivalent binary expressions.");
 
 // FIXME: Remove this once the bug has been fixed!
 cl::opt<bool> ANDIGlueBug("expose-ppc-andi-glue-bug",
@@ -436,6 +438,7 @@ private:
     void PeepholePPC64();
     void PeepholePPC64ZExt();
     void PeepholeCROps();
+    void EliminateEquivalentBinaryExpression();
 
     SDValue combineToCMPB(SDNode *N);
     void foldBoolExts(SDValue &Res, SDNode *&N);
@@ -6671,6 +6674,7 @@ void PPCDAGToDAGISel::PostprocessISelDAG() {
   PeepholePPC64();
   PeepholeCROps();
   PeepholePPC64ZExt();
+  EliminateEquivalentBinaryExpression();
 }
 
 // Check if all users of this node will become isel where the second operand
@@ -7464,6 +7468,49 @@ void PPCDAGToDAGISel::PeepholePPC64ZExt() {
 
   if (MadeChange)
     CurDAG->RemoveDeadNodes();
+}
+
+void PPCDAGToDAGISel::EliminateEquivalentBinaryExpression() {
+  auto Substitude = [&](unsigned OldOp, MachineSDNode *MachineNode) {
+    SDLoc DL(MachineNode);
+    SDValue LHS = MachineNode->getOperand(0);
+    SDValue RHS = MachineNode->getOperand(1);
+    MachineSDNode *EQNode = CurDAG->getMachineNode(
+        OldOp, DL, CurDAG->getVTList(MachineNode->getValueType(0)), {LHS, RHS});
+    if (EQNode &&
+        EQNode->getFlags().hasNoUnsignedWrap() ==
+            MachineNode->getFlags().hasNoUnsignedWrap() &&
+        EQNode->getFlags().hasNoSignedWrap() ==
+            MachineNode->getFlags().hasNoSignedWrap()) {
+      LLVM_DEBUG(dbgs() << "Equivalent binary expression replacing:\nOld: ");
+      LLVM_DEBUG(EQNode->dump(CurDAG));
+      LLVM_DEBUG(dbgs() << "New: ");
+      LLVM_DEBUG(MachineNode->dump(CurDAG));
+      LLVM_DEBUG(dbgs() << "\n");
+      ReplaceUses(SDValue(EQNode, 0), SDValue(MachineNode, 0));
+      CurDAG->RemoveDeadNode(EQNode);
+      ++NumEquivBinExp;
+    }
+  };
+  for (SDNode &Node : CurDAG->allnodes()) {
+    MachineSDNode *MachineNode = dyn_cast<MachineSDNode>(&Node);
+    if (!MachineNode || MachineNode->use_empty())
+      continue;
+    unsigned Opcode = MachineNode->getMachineOpcode();
+    switch (Opcode) {
+    default:
+      break;
+    case PPC::ADDC8:
+      Substitude(PPC::ADD8, MachineNode);
+      break;
+    case PPC::ADDIC8:
+      Substitude(PPC::ADDI8, MachineNode);
+      break;
+    case PPC::SUBFC8:
+      Substitude(PPC::SUBF8, MachineNode);
+      break;
+    }
+  }
 }
 
 static bool isVSXSwap(SDValue N) {
