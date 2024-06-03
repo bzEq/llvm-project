@@ -17,6 +17,7 @@ def sub_un : SubRegIndex<1, 3>;
 def sub_32 : SubRegIndex<32>;
 def sub_32_hi_phony : SubRegIndex<32,32>;
 def sub_64 : SubRegIndex<64>;
+def sub_64_hi_phony : SubRegIndex<64, 64>;
 def sub_vsx0 : SubRegIndex<128>;
 def sub_vsx1 : SubRegIndex<128, 128>;
 def sub_gp8_x0 : SubRegIndex<64>;
@@ -77,19 +78,19 @@ class VF<bits<5> num, string n> : PPCReg<n> {
 }
 
 // VR - One of the 32 128-bit vector registers
-class VR<VF SubReg, string n> : PPCReg<n> {
+class VR<VF SubReg, VF SubRegHi, string n> : PPCReg<n> {
   let HWEncoding{4-0} = SubReg.HWEncoding{4-0};
   let HWEncoding{5} = 0;
-  let SubRegs = [SubReg];
-  let SubRegIndices = [sub_64];
+  let SubRegs = [SubReg, SubRegHi];
+  let SubRegIndices = [sub_64, sub_64_hi_phony];
 }
 
 // VSRL - One of the 32 128-bit VSX registers that overlap with the scalar
 // floating-point registers.
-class VSRL<FPR SubReg, string n> : PPCReg<n> {
+class VSRL<FPR SubReg, FPR SubRegHi, string n> : PPCReg<n> {
   let HWEncoding = SubReg.HWEncoding;
-  let SubRegs = [SubReg];
-  let SubRegIndices = [sub_64];
+  let SubRegs = [SubReg, SubRegHi];
+  let SubRegIndices = [sub_64, sub_64_hi_phony];
 }
 
 // VSXReg - One of the VSX registers in the range vs32-vs63 with numbering
@@ -132,6 +133,8 @@ foreach Index = 0-31 in {
 let isArtificial = 1 in {
   foreach Index = 0-31 in {
     def H#Index : GPR<-1,"">;
+    def FH#Index : FPR<-1, "">;
+    def VFH#Index : VF<-1, "">;
   }
 }
 
@@ -169,14 +172,16 @@ foreach Index = 0-31 in {
 }
 
 // Vector registers
+let CoveredBySubRegs = 1 in
 foreach Index = 0-31 in {
-  def V#Index : VR<!cast<VF>("VF"#Index), "v"#Index>,
+  def V#Index : VR<!cast<VF>("VF"#Index), !cast<VF>("VFH"#Index), "v"#Index>,
                 DwarfRegNum<[!add(Index, 77), !add(Index, 77)]>;
 }
 
 // VSX registers
+let CoveredBySubRegs = 1 in
 foreach Index = 0-31 in {
-  def VSL#Index : VSRL<!cast<FPR>("F"#Index), "vs"#Index>,
+  def VSL#Index : VSRL<!cast<FPR>("F"#Index), !cast<FPR>("FH"#Index), "vs"#Index>,
                   DwarfRegAlias<!cast<FPR>("F"#Index)>;
 }
 
@@ -418,6 +423,11 @@ def VFRC :  RegisterClass<"PPC", [f64], 64,
                                VF15, VF16, VF17, VF18, VF19, VF31, VF30,
                                VF29, VF28, VF27, VF26, VF25, VF24, VF23,
                                VF22, VF21, VF20)>;
+let isAllocatable = 0, CopyCost = -1 in {
+def VFHRC : RegisterClass<"PPC", [f64], 64, (sequence "VFH%u", 0, 31)>;
+def FHRC : RegisterClass<"PPC", [f64], 64, (sequence "FH%u", 0, 31)>;
+}
+
 def VSFRC : RegisterClass<"PPC", [f64], 64, (add F8RC, VFRC)>;
 
 // Allow spilling GPR's into caller-saved VSR's.
