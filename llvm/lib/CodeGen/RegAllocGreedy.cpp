@@ -1087,6 +1087,9 @@ MCRegister RAGreedy::tryRegionSplit(const LiveInterval &VirtReg,
   if (!HasCompact && BestCand == NoCand)
     return MCRegister::NoRegister;
 
+  if (BestCost > SpillCost)
+    return MCRegister::NoRegister;
+
   return doRegionSplit(VirtReg, BestCand, HasCompact, NewVRegs);
 }
 
