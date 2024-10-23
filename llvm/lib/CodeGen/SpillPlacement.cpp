@@ -35,6 +35,7 @@
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/InitializePasses.h"
 #include "llvm/Pass.h"
+#include "llvm/Support/BlockFrequency.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -90,6 +91,10 @@ struct SpillPlacement::Node {
   /// SumLinkWeights - Cached sum of the weights of all links + ThresHold.
   BlockFrequency SumLinkWeights;
 
+  bool isFixed() const {
+    return BiasN == BlockFrequency::max();
+  }
+
   /// preferReg - Return true when this node prefers to be in a register.
   bool preferReg() const {
     // Undecided nodes (Value==0) go on the stack.
@@ -142,6 +147,7 @@ struct SpillPlacement::Node {
       break;
     case MustSpill:
       BiasN = BlockFrequency::max();
+      Value = -1;
       break;
     }
   }
@@ -149,9 +155,11 @@ struct SpillPlacement::Node {
   /// update - Recompute Value from Bias and Links. Return true when node
   /// preference changes.
   bool update(const Node nodes[], BlockFrequency Threshold) {
+    if (isFixed())
+        return false;
     // Compute the weighted sum of inputs.
-    BlockFrequency SumN = BiasN;
-    BlockFrequency SumP = BiasP;
+    BlockFrequency SumN = BlockFrequency(0);
+    BlockFrequency SumP = BlockFrequency(0);
     for (std::pair<BlockFrequency, unsigned> &L : Links) {
       if (nodes[L.second].Value == -1)
         SumN += L.first;
@@ -168,12 +176,14 @@ struct SpillPlacement::Node {
     //  2. It helps tame rounding errors when the links nominally sum to 0.
     //
     bool Before = preferReg();
-    if (SumN >= SumP + Threshold)
+    if (SumN > SumP + Threshold)
       Value = -1;
-    else if (SumP >= SumN + Threshold)
+    else if (SumP > SumN + Threshold)
       Value = 1;
+    else if (BiasN >= BiasP)
+      Value = -1;
     else
-      Value = 0;
+      Value = 1;
     return Before != preferReg();
   }
 
@@ -250,9 +260,12 @@ void SpillPlacement::activate(unsigned n) {
 void SpillPlacement::setThreshold(BlockFrequency Entry) {
   // Apparently 2 is a good threshold when Entry==2^14, but we need to scale
   // it.  Divide by 2^13, rounding as appropriate.
-  uint64_t Freq = Entry.getFrequency();
-  uint64_t Scaled = (Freq >> 13) + bool(Freq & (1 << 12));
-  Threshold = BlockFrequency(std::max(UINT64_C(1), Scaled));
+  // uint64_t Freq = Entry.getFrequency();
+  // uint64_t Scaled = (Freq >> 13) + bool(Freq & (1 << 12));
+  // Threshold = BlockFrequency(std::max(UINT64_C(1), Scaled));
+  // So that there is no external field in Hopfield network's energy function
+  // or Ising model's Hamiltonian function.
+  Threshold = BlockFrequency(0);
 }
 
 /// addConstraints - Compute node biases and weights from a set of constraints.
