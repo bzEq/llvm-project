@@ -31,6 +31,7 @@
 #include "llvm/ADT/SparseSet.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
 #include "llvm/Support/BlockFrequency.h"
+#include <queue>
 
 namespace llvm {
 
@@ -65,7 +66,9 @@ class SpillPlacement : public MachineFunctionPass {
   BlockFrequency Threshold;
 
   /// List of nodes that need to be updated in ::iterate.
-  SparseSet<unsigned> TodoList;
+  // SparseSet<unsigned> TodoList;
+  using PQueue = std::priority_queue<std::pair<size_t, unsigned>>;
+  PQueue TodoList;
 
 public:
   static char ID; // Pass identification, replacement for typeid.

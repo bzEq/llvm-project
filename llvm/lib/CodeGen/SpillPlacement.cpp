@@ -187,14 +187,15 @@ struct SpillPlacement::Node {
     return Before != preferReg();
   }
 
-  void getDissentingNeighbors(SparseSet<unsigned> &List,
+  void getDissentingNeighbors(PQueue &List,
+                              const EdgeBundles *EB,
                               const Node nodes[]) const {
     for (const auto &Elt : Links) {
       unsigned n = Elt.second;
       // Neighbors that already have the same value are not going to
       // change because of this node changing.
       if (Value != nodes[n].Value)
-        List.insert(n);
+        List.push({~EB->getBlocks(n).size(), n});
     }
   }
 };
@@ -205,8 +206,8 @@ bool SpillPlacement::runOnMachineFunction(MachineFunction &mf) {
 
   assert(!nodes && "Leaking node array");
   nodes = new Node[bundles->getNumBundles()];
-  TodoList.clear();
-  TodoList.setUniverse(bundles->getNumBundles());
+  TodoList = PQueue();
+  // TodoList.setUniverse(bundles->getNumBundles());
 
   // Compute total ingoing and outgoing block frequencies for all bundles.
   BlockFrequencies.resize(mf.getNumBlockIDs());
@@ -224,12 +225,12 @@ bool SpillPlacement::runOnMachineFunction(MachineFunction &mf) {
 void SpillPlacement::releaseMemory() {
   delete[] nodes;
   nodes = nullptr;
-  TodoList.clear();
+  TodoList = PQueue();
 }
 
 /// activate - mark node n as active if it wasn't already.
 void SpillPlacement::activate(unsigned n) {
-  TodoList.insert(n);
+  TodoList.push({~bundles->getBlocks(n).size(), n});
   if (ActiveNodes->test(n))
     return;
   ActiveNodes->set(n);
@@ -338,7 +339,7 @@ bool SpillPlacement::scanActiveBundles() {
 bool SpillPlacement::update(unsigned n) {
   if (!nodes[n].update(nodes, Threshold))
     return false;
-  nodes[n].getDissentingNeighbors(TodoList, nodes);
+  nodes[n].getDissentingNeighbors(TodoList, bundles, nodes);
   return true;
 }
 
@@ -355,7 +356,8 @@ void SpillPlacement::iterate() {
   // The call to ::update will add the nodes that changed into the todolist.
   unsigned Limit = bundles->getNumBundles() * 10;
   while(Limit-- > 0 && !TodoList.empty()) {
-    unsigned n = TodoList.pop_back_val();
+    unsigned n = TodoList.top().second;
+    TodoList.pop();
     if (!update(n))
       continue;
     if (nodes[n].preferReg())
@@ -365,7 +367,7 @@ void SpillPlacement::iterate() {
 
 void SpillPlacement::prepare(BitVector &RegBundles) {
   RecentPositive.clear();
-  TodoList.clear();
+  TodoList = PQueue();
   // Reuse RegBundles as our ActiveNodes vector.
   ActiveNodes = &RegBundles;
   ActiveNodes->clear();
