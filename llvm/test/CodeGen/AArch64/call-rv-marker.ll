@@ -299,17 +299,18 @@ define dso_local void @rv_marker_4() personality ptr @__gxx_personality_v0 {
 ; SELDAG-NEXT:    ret
 ; SELDAG-NEXT:  LBB4_3: ; %lpad1
 ; SELDAG-NEXT:  Ltmp8:
-; SELDAG-NEXT:    mov x20, x0
+; SELDAG-NEXT:    mov x1, x0
 ; SELDAG-NEXT:    mov x0, x19
+; SELDAG-NEXT:    mov x19, x1
 ; SELDAG-NEXT:    bl _objc_release
 ; SELDAG-NEXT:    b LBB4_5
 ; SELDAG-NEXT:  LBB4_4: ; %lpad
 ; SELDAG-NEXT:  Ltmp5:
-; SELDAG-NEXT:    mov x20, x0
+; SELDAG-NEXT:    mov x19, x0
 ; SELDAG-NEXT:  LBB4_5: ; %ehcleanup
 ; SELDAG-NEXT:    add x0, sp, #15
 ; SELDAG-NEXT:    bl __ZN1SD1Ev
-; SELDAG-NEXT:    mov x0, x20
+; SELDAG-NEXT:    mov x0, x19
 ; SELDAG-NEXT:    bl __Unwind_Resume
 ; SELDAG-NEXT:  Lfunc_end1:
 ; SELDAG-NEXT:    .cfi_endproc
@@ -377,20 +378,21 @@ define dso_local void @rv_marker_4() personality ptr @__gxx_personality_v0 {
 ; GISEL-NEXT:  LBB4_3: ; %lpad1
 ; GISEL-NEXT:  Ltmp8:
 ; GISEL-NEXT:  Lloh6:
-; GISEL-NEXT:    adrp x8, _objc_release@GOTPAGE
-; GISEL-NEXT:    mov x20, x0
+; GISEL-NEXT:    adrp x9, _objc_release@GOTPAGE
+; GISEL-NEXT:    mov x8, x0
 ; GISEL-NEXT:    mov x0, x19
 ; GISEL-NEXT:  Lloh7:
-; GISEL-NEXT:    ldr x8, [x8, _objc_release@GOTPAGEOFF]
-; GISEL-NEXT:    blr x8
+; GISEL-NEXT:    ldr x9, [x9, _objc_release@GOTPAGEOFF]
+; GISEL-NEXT:    mov x19, x8
+; GISEL-NEXT:    blr x9
 ; GISEL-NEXT:    b LBB4_5
 ; GISEL-NEXT:  LBB4_4: ; %lpad
 ; GISEL-NEXT:  Ltmp5:
-; GISEL-NEXT:    mov x20, x0
+; GISEL-NEXT:    mov x19, x0
 ; GISEL-NEXT:  LBB4_5: ; %ehcleanup
 ; GISEL-NEXT:    add x0, sp, #15
 ; GISEL-NEXT:    bl __ZN1SD1Ev
-; GISEL-NEXT:    mov x0, x20
+; GISEL-NEXT:    mov x0, x19
 ; GISEL-NEXT:    bl __Unwind_Resume
 ; GISEL-NEXT:    .loh AdrpLdrGot Lloh4, Lloh5
 ; GISEL-NEXT:    .loh AdrpLdrGot Lloh6, Lloh7

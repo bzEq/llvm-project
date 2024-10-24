@@ -266,16 +266,16 @@ declare void @llvm.memcpy.p0.p0.i64(ptr noalias nocapture writeonly, ptr noalias
 define void @lea_in_epilog(i1 %arg, ptr %arg1, ptr %arg2, i64 %arg3, i64 %arg4, i64 %arg5, i64 %arg6, i64 %arg7, i64 %arg8, i64 %arg9, i64 %arg10) nounwind {
 ; CHECK-LABEL: lea_in_epilog:
 ; CHECK:       # %bb.0: # %bb
-; CHECK-NEXT:    testb $1, %dil
-; CHECK-NEXT:    je .LBB6_5
-; CHECK-NEXT:  # %bb.1: # %bb13
 ; CHECK-NEXT:    pushq %rax
 ; CHECK-NEXT:    push2 %r15, %rbp
 ; CHECK-NEXT:    push2 %r13, %r14
 ; CHECK-NEXT:    push2 %rbx, %r12
 ; CHECK-NEXT:    subq $16, %rsp
-; CHECK-NEXT:    movq %r9, %r14
 ; CHECK-NEXT:    movq %rsi, {{[-0-9]+}}(%r{{[sb]}}p) # 8-byte Spill
+; CHECK-NEXT:    testb $1, %dil
+; CHECK-NEXT:    je .LBB6_5
+; CHECK-NEXT:  # %bb.1: # %bb13
+; CHECK-NEXT:    movq %r9, %r14
 ; CHECK-NEXT:    addq {{[0-9]+}}(%rsp), %r14
 ; CHECK-NEXT:    movq {{[0-9]+}}(%rsp), %r13
 ; CHECK-NEXT:    addq %r14, %r13
@@ -304,30 +304,30 @@ define void @lea_in_epilog(i1 %arg, ptr %arg1, ptr %arg2, i64 %arg3, i64 %arg4, 
 ; CHECK-NEXT:    testb $1, %dil
 ; CHECK-NEXT:    je .LBB6_2
 ; CHECK-NEXT:  # %bb.3: # %bb11
+; CHECK-NEXT:    jne .LBB6_5
+; CHECK-NEXT:  # %bb.4: # %bb12
 ; CHECK-NEXT:    movq {{[-0-9]+}}(%r{{[sb]}}p), %rax # 8-byte Reload
-; CHECK-NEXT:    leaq {{[0-9]+}}(%rsp), %rsp
+; CHECK-NEXT:    movq $0, (%rax)
+; CHECK-NEXT:  .LBB6_5: # %bb14
+; CHECK-NEXT:    addq $16, %rsp
 ; CHECK-NEXT:    pop2 %r12, %rbx
 ; CHECK-NEXT:    pop2 %r14, %r13
 ; CHECK-NEXT:    pop2 %rbp, %r15
-; CHECK-NEXT:    leaq {{[0-9]+}}(%rsp), %rsp
-; CHECK-NEXT:    jne .LBB6_5
-; CHECK-NEXT:  # %bb.4: # %bb12
-; CHECK-NEXT:    movq $0, (%rax)
-; CHECK-NEXT:  .LBB6_5: # %bb14
+; CHECK-NEXT:    popq %rax
 ; CHECK-NEXT:    retq
 ;
 ; PPX-LABEL: lea_in_epilog:
 ; PPX:       # %bb.0: # %bb
-; PPX-NEXT:    testb $1, %dil
-; PPX-NEXT:    je .LBB6_5
-; PPX-NEXT:  # %bb.1: # %bb13
 ; PPX-NEXT:    pushq %rax
 ; PPX-NEXT:    push2p %r15, %rbp
 ; PPX-NEXT:    push2p %r13, %r14
 ; PPX-NEXT:    push2p %rbx, %r12
 ; PPX-NEXT:    subq $16, %rsp
-; PPX-NEXT:    movq %r9, %r14
 ; PPX-NEXT:    movq %rsi, {{[-0-9]+}}(%r{{[sb]}}p) # 8-byte Spill
+; PPX-NEXT:    testb $1, %dil
+; PPX-NEXT:    je .LBB6_5
+; PPX-NEXT:  # %bb.1: # %bb13
+; PPX-NEXT:    movq %r9, %r14
 ; PPX-NEXT:    addq {{[0-9]+}}(%rsp), %r14
 ; PPX-NEXT:    movq {{[0-9]+}}(%rsp), %r13
 ; PPX-NEXT:    addq %r14, %r13
@@ -356,23 +356,20 @@ define void @lea_in_epilog(i1 %arg, ptr %arg1, ptr %arg2, i64 %arg3, i64 %arg4, 
 ; PPX-NEXT:    testb $1, %dil
 ; PPX-NEXT:    je .LBB6_2
 ; PPX-NEXT:  # %bb.3: # %bb11
+; PPX-NEXT:    jne .LBB6_5
+; PPX-NEXT:  # %bb.4: # %bb12
 ; PPX-NEXT:    movq {{[-0-9]+}}(%r{{[sb]}}p), %rax # 8-byte Reload
-; PPX-NEXT:    leaq {{[0-9]+}}(%rsp), %rsp
+; PPX-NEXT:    movq $0, (%rax)
+; PPX-NEXT:  .LBB6_5: # %bb14
+; PPX-NEXT:    addq $16, %rsp
 ; PPX-NEXT:    pop2p %r12, %rbx
 ; PPX-NEXT:    pop2p %r14, %r13
 ; PPX-NEXT:    pop2p %rbp, %r15
-; PPX-NEXT:    leaq {{[0-9]+}}(%rsp), %rsp
-; PPX-NEXT:    jne .LBB6_5
-; PPX-NEXT:  # %bb.4: # %bb12
-; PPX-NEXT:    movq $0, (%rax)
-; PPX-NEXT:  .LBB6_5: # %bb14
+; PPX-NEXT:    popq %rax
 ; PPX-NEXT:    retq
 ;
 ; FRAME-LABEL: lea_in_epilog:
 ; FRAME:       # %bb.0: # %bb
-; FRAME-NEXT:    testb $1, %dil
-; FRAME-NEXT:    je .LBB6_5
-; FRAME-NEXT:  # %bb.1: # %bb13
 ; FRAME-NEXT:    pushq %rbp
 ; FRAME-NEXT:    movq %rsp, %rbp
 ; FRAME-NEXT:    push2 %r14, %r15
@@ -380,6 +377,9 @@ define void @lea_in_epilog(i1 %arg, ptr %arg1, ptr %arg2, i64 %arg3, i64 %arg4, 
 ; FRAME-NEXT:    pushq %rbx
 ; FRAME-NEXT:    subq $24, %rsp
 ; FRAME-NEXT:    movq %rsi, {{[-0-9]+}}(%r{{[sb]}}p) # 8-byte Spill
+; FRAME-NEXT:    testb $1, %dil
+; FRAME-NEXT:    je .LBB6_5
+; FRAME-NEXT:  # %bb.1: # %bb13
 ; FRAME-NEXT:    addq 16(%rbp), %r9
 ; FRAME-NEXT:    movq 48(%rbp), %rbx
 ; FRAME-NEXT:    addq %r9, %rbx
@@ -410,16 +410,16 @@ define void @lea_in_epilog(i1 %arg, ptr %arg1, ptr %arg2, i64 %arg3, i64 %arg4, 
 ; FRAME-NEXT:    testb $1, %dil
 ; FRAME-NEXT:    je .LBB6_2
 ; FRAME-NEXT:  # %bb.3: # %bb11
+; FRAME-NEXT:    jne .LBB6_5
+; FRAME-NEXT:  # %bb.4: # %bb12
 ; FRAME-NEXT:    movq {{[-0-9]+}}(%r{{[sb]}}p), %rax # 8-byte Reload
-; FRAME-NEXT:    leaq {{[0-9]+}}(%rsp), %rsp
+; FRAME-NEXT:    movq $0, (%rax)
+; FRAME-NEXT:  .LBB6_5: # %bb14
+; FRAME-NEXT:    addq $24, %rsp
 ; FRAME-NEXT:    popq %rbx
 ; FRAME-NEXT:    pop2 %r13, %r12
 ; FRAME-NEXT:    pop2 %r15, %r14
 ; FRAME-NEXT:    popq %rbp
-; FRAME-NEXT:    jne .LBB6_5
-; FRAME-NEXT:  # %bb.4: # %bb12
-; FRAME-NEXT:    movq $0, (%rax)
-; FRAME-NEXT:  .LBB6_5: # %bb14
 ; FRAME-NEXT:    retq
 bb:
   br i1 %arg, label %bb13, label %bb14

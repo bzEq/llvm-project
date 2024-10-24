@@ -1387,27 +1387,26 @@ define <4 x float> @test_fmaximum_v4f32_splat(<4 x float> %x, float %y) {
 define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; SSE2-LABEL: test_fmaximum_v4f16:
 ; SSE2:       # %bb.0:
-; SSE2-NEXT:    subq $104, %rsp
-; SSE2-NEXT:    .cfi_def_cfa_offset 112
+; SSE2-NEXT:    subq $120, %rsp
+; SSE2-NEXT:    .cfi_def_cfa_offset 128
 ; SSE2-NEXT:    movdqa %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
 ; SSE2-NEXT:    psrld $16, %xmm0
 ; SSE2-NEXT:    movdqa %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    movdqa %xmm1, (%rsp) # 16-byte Spill
+; SSE2-NEXT:    movdqa %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
 ; SSE2-NEXT:    movdqa %xmm1, %xmm0
 ; SSE2-NEXT:    psrld $16, %xmm0
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movd %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 4-byte Folded Spill
+; SSE2-NEXT:    movd %xmm0, (%rsp) # 4-byte Folded Spill
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movd {{[-0-9]+}}(%r{{[sb]}}p), %xmm4 # 4-byte Folded Reload
-; SSE2-NEXT:    # xmm4 = mem[0],zero,zero,zero
 ; SSE2-NEXT:    movdqa %xmm0, %xmm1
 ; SSE2-NEXT:    movd %xmm0, %eax
 ; SSE2-NEXT:    testl %eax, %eax
 ; SSE2-NEXT:    movdqa %xmm0, %xmm2
 ; SSE2-NEXT:    js .LBB33_2
 ; SSE2-NEXT:  # %bb.1:
-; SSE2-NEXT:    movdqa %xmm4, %xmm2
+; SSE2-NEXT:    movd (%rsp), %xmm2 # 4-byte Folded Reload
+; SSE2-NEXT:    # xmm2 = mem[0],zero,zero,zero
 ; SSE2-NEXT:  .LBB33_2:
 ; SSE2-NEXT:    movdqa %xmm2, %xmm0
 ; SSE2-NEXT:    cmpunordss %xmm2, %xmm0
@@ -1415,33 +1414,32 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; SSE2-NEXT:    andps %xmm2, %xmm3
 ; SSE2-NEXT:    js .LBB33_4
 ; SSE2-NEXT:  # %bb.3:
-; SSE2-NEXT:    movdqa %xmm1, %xmm4
+; SSE2-NEXT:    movd %xmm1, (%rsp) # 4-byte Folded Spill
 ; SSE2-NEXT:  .LBB33_4:
 ; SSE2-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
 ; SSE2-NEXT:    shufps {{.*#+}} xmm1 = xmm1[1,1,1,1]
 ; SSE2-NEXT:    movaps %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    movaps (%rsp), %xmm1 # 16-byte Reload
+; SSE2-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
 ; SSE2-NEXT:    shufps {{.*#+}} xmm1 = xmm1[1,1,1,1]
 ; SSE2-NEXT:    movaps %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    maxss %xmm4, %xmm2
+; SSE2-NEXT:    maxss (%rsp), %xmm2 # 4-byte Folded Reload
 ; SSE2-NEXT:    andnps %xmm2, %xmm0
 ; SSE2-NEXT:    orps %xmm3, %xmm0
 ; SSE2-NEXT:    callq __truncsfhf2@PLT
 ; SSE2-NEXT:    movaps %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    movaps (%rsp), %xmm0 # 16-byte Reload
+; SSE2-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movss %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 4-byte Spill
+; SSE2-NEXT:    movss %xmm0, (%rsp) # 4-byte Spill
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movd {{[-0-9]+}}(%r{{[sb]}}p), %xmm4 # 4-byte Folded Reload
-; SSE2-NEXT:    # xmm4 = mem[0],zero,zero,zero
 ; SSE2-NEXT:    movdqa %xmm0, %xmm1
 ; SSE2-NEXT:    movd %xmm0, %eax
 ; SSE2-NEXT:    testl %eax, %eax
 ; SSE2-NEXT:    movdqa %xmm0, %xmm2
 ; SSE2-NEXT:    js .LBB33_6
 ; SSE2-NEXT:  # %bb.5:
-; SSE2-NEXT:    movdqa %xmm4, %xmm2
+; SSE2-NEXT:    movd (%rsp), %xmm2 # 4-byte Folded Reload
+; SSE2-NEXT:    # xmm2 = mem[0],zero,zero,zero
 ; SSE2-NEXT:  .LBB33_6:
 ; SSE2-NEXT:    movdqa %xmm2, %xmm0
 ; SSE2-NEXT:    cmpunordss %xmm2, %xmm0
@@ -1449,32 +1447,31 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; SSE2-NEXT:    andps %xmm2, %xmm3
 ; SSE2-NEXT:    js .LBB33_8
 ; SSE2-NEXT:  # %bb.7:
-; SSE2-NEXT:    movdqa %xmm1, %xmm4
+; SSE2-NEXT:    movd %xmm1, (%rsp) # 4-byte Folded Spill
 ; SSE2-NEXT:  .LBB33_8:
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
 ; SSE2-NEXT:    psrlq $48, %xmm1
 ; SSE2-NEXT:    movdqa %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    movdqa (%rsp), %xmm1 # 16-byte Reload
+; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
 ; SSE2-NEXT:    psrlq $48, %xmm1
-; SSE2-NEXT:    movdqa %xmm1, (%rsp) # 16-byte Spill
-; SSE2-NEXT:    maxss %xmm4, %xmm2
+; SSE2-NEXT:    movdqa %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
+; SSE2-NEXT:    maxss (%rsp), %xmm2 # 4-byte Folded Reload
 ; SSE2-NEXT:    andnps %xmm2, %xmm0
 ; SSE2-NEXT:    orps %xmm3, %xmm0
 ; SSE2-NEXT:    callq __truncsfhf2@PLT
 ; SSE2-NEXT:    movaps %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
 ; SSE2-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movss %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 4-byte Spill
+; SSE2-NEXT:    movss %xmm0, (%rsp) # 4-byte Spill
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movd {{[-0-9]+}}(%r{{[sb]}}p), %xmm4 # 4-byte Folded Reload
-; SSE2-NEXT:    # xmm4 = mem[0],zero,zero,zero
 ; SSE2-NEXT:    movd %xmm0, %eax
 ; SSE2-NEXT:    testl %eax, %eax
 ; SSE2-NEXT:    movdqa %xmm0, %xmm2
 ; SSE2-NEXT:    js .LBB33_10
 ; SSE2-NEXT:  # %bb.9:
-; SSE2-NEXT:    movdqa %xmm4, %xmm2
+; SSE2-NEXT:    movd (%rsp), %xmm2 # 4-byte Folded Reload
+; SSE2-NEXT:    # xmm2 = mem[0],zero,zero,zero
 ; SSE2-NEXT:  .LBB33_10:
 ; SSE2-NEXT:    movdqa %xmm2, %xmm1
 ; SSE2-NEXT:    cmpunordss %xmm2, %xmm1
@@ -1482,28 +1479,27 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; SSE2-NEXT:    andps %xmm2, %xmm3
 ; SSE2-NEXT:    js .LBB33_12
 ; SSE2-NEXT:  # %bb.11:
-; SSE2-NEXT:    movdqa %xmm0, %xmm4
+; SSE2-NEXT:    movd %xmm0, (%rsp) # 4-byte Folded Spill
 ; SSE2-NEXT:  .LBB33_12:
-; SSE2-NEXT:    maxss %xmm4, %xmm2
+; SSE2-NEXT:    maxss (%rsp), %xmm2 # 4-byte Folded Reload
 ; SSE2-NEXT:    andnps %xmm2, %xmm1
 ; SSE2-NEXT:    orps %xmm3, %xmm1
 ; SSE2-NEXT:    movaps %xmm1, %xmm0
 ; SSE2-NEXT:    callq __truncsfhf2@PLT
-; SSE2-NEXT:    movaps %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
-; SSE2-NEXT:    movaps (%rsp), %xmm0 # 16-byte Reload
+; SSE2-NEXT:    movaps %xmm0, (%rsp) # 16-byte Spill
+; SSE2-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movss %xmm0, (%rsp) # 4-byte Spill
+; SSE2-NEXT:    movss %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 4-byte Spill
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    callq __extendhfsf2@PLT
-; SSE2-NEXT:    movd (%rsp), %xmm4 # 4-byte Folded Reload
-; SSE2-NEXT:    # xmm4 = mem[0],zero,zero,zero
 ; SSE2-NEXT:    movdqa %xmm0, %xmm1
 ; SSE2-NEXT:    movd %xmm0, %eax
 ; SSE2-NEXT:    testl %eax, %eax
 ; SSE2-NEXT:    movdqa %xmm0, %xmm2
 ; SSE2-NEXT:    js .LBB33_14
 ; SSE2-NEXT:  # %bb.13:
-; SSE2-NEXT:    movdqa %xmm4, %xmm2
+; SSE2-NEXT:    movd {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 4-byte Folded Reload
+; SSE2-NEXT:    # xmm2 = mem[0],zero,zero,zero
 ; SSE2-NEXT:  .LBB33_14:
 ; SSE2-NEXT:    movdqa %xmm2, %xmm0
 ; SSE2-NEXT:    cmpunordss %xmm2, %xmm0
@@ -1511,19 +1507,19 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; SSE2-NEXT:    andps %xmm2, %xmm3
 ; SSE2-NEXT:    js .LBB33_16
 ; SSE2-NEXT:  # %bb.15:
-; SSE2-NEXT:    movdqa %xmm1, %xmm4
+; SSE2-NEXT:    movd %xmm1, {{[-0-9]+}}(%r{{[sb]}}p) # 4-byte Folded Spill
 ; SSE2-NEXT:  .LBB33_16:
-; SSE2-NEXT:    maxss %xmm4, %xmm2
+; SSE2-NEXT:    maxss {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 4-byte Folded Reload
 ; SSE2-NEXT:    andnps %xmm2, %xmm0
 ; SSE2-NEXT:    orps %xmm3, %xmm0
 ; SSE2-NEXT:    callq __truncsfhf2@PLT
-; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
+; SSE2-NEXT:    movdqa (%rsp), %xmm1 # 16-byte Reload
 ; SSE2-NEXT:    punpcklwd {{.*#+}} xmm1 = xmm1[0],xmm0[0],xmm1[1],xmm0[1],xmm1[2],xmm0[2],xmm1[3],xmm0[3]
 ; SSE2-NEXT:    movdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; SSE2-NEXT:    punpcklwd {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Folded Reload
 ; SSE2-NEXT:    # xmm0 = xmm0[0],mem[0],xmm0[1],mem[1],xmm0[2],mem[2],xmm0[3],mem[3]
 ; SSE2-NEXT:    punpckldq {{.*#+}} xmm0 = xmm0[0],xmm1[0],xmm0[1],xmm1[1]
-; SSE2-NEXT:    addq $104, %rsp
+; SSE2-NEXT:    addq $120, %rsp
 ; SSE2-NEXT:    .cfi_def_cfa_offset 8
 ; SSE2-NEXT:    retq
 ;
@@ -1550,11 +1546,10 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; AVX1-NEXT:    js .LBB33_1
 ; AVX1-NEXT:  # %bb.2:
 ; AVX1-NEXT:    vmovdqa %xmm0, %xmm1
-; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 16-byte Reload
 ; AVX1-NEXT:    jmp .LBB33_3
 ; AVX1-NEXT:  .LBB33_1:
 ; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
-; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
+; AVX1-NEXT:    vmovdqa %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
 ; AVX1-NEXT:  .LBB33_3:
 ; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; AVX1-NEXT:    vpsrlq $48, %xmm0, %xmm0
@@ -1562,6 +1557,7 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; AVX1-NEXT:    vmovdqa (%rsp), %xmm0 # 16-byte Reload
 ; AVX1-NEXT:    vpsrlq $48, %xmm0, %xmm0
 ; AVX1-NEXT:    vmovdqa %xmm0, {{[-0-9]+}}(%r{{[sb]}}p) # 16-byte Spill
+; AVX1-NEXT:    vmovaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 16-byte Reload
 ; AVX1-NEXT:    vmaxss %xmm1, %xmm2, %xmm0
 ; AVX1-NEXT:    vcmpunordss %xmm2, %xmm2, %xmm1
 ; AVX1-NEXT:    vblendvps %xmm1, %xmm2, %xmm0, %xmm0
@@ -1577,13 +1573,13 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; AVX1-NEXT:    js .LBB33_4
 ; AVX1-NEXT:  # %bb.5:
 ; AVX1-NEXT:    vmovdqa %xmm0, %xmm1
-; AVX1-NEXT:    vmovdqa (%rsp), %xmm2 # 16-byte Reload
+; AVX1-NEXT:    vmovdqa (%rsp), %xmm0 # 16-byte Reload
 ; AVX1-NEXT:    jmp .LBB33_6
 ; AVX1-NEXT:  .LBB33_4:
 ; AVX1-NEXT:    vmovdqa (%rsp), %xmm1 # 16-byte Reload
-; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
 ; AVX1-NEXT:  .LBB33_6:
-; AVX1-NEXT:    vmaxss %xmm1, %xmm2, %xmm0
+; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
+; AVX1-NEXT:    vmaxss %xmm1, %xmm0, %xmm0
 ; AVX1-NEXT:    vcmpunordss %xmm2, %xmm2, %xmm1
 ; AVX1-NEXT:    vblendvps %xmm1, %xmm2, %xmm0, %xmm0
 ; AVX1-NEXT:    callq __truncsfhf2@PLT
@@ -1598,13 +1594,13 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; AVX1-NEXT:    js .LBB33_7
 ; AVX1-NEXT:  # %bb.8:
 ; AVX1-NEXT:    vmovdqa %xmm0, %xmm1
-; AVX1-NEXT:    vmovdqa (%rsp), %xmm2 # 16-byte Reload
+; AVX1-NEXT:    vmovdqa (%rsp), %xmm0 # 16-byte Reload
 ; AVX1-NEXT:    jmp .LBB33_9
 ; AVX1-NEXT:  .LBB33_7:
 ; AVX1-NEXT:    vmovdqa (%rsp), %xmm1 # 16-byte Reload
-; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
 ; AVX1-NEXT:  .LBB33_9:
-; AVX1-NEXT:    vmaxss %xmm1, %xmm2, %xmm0
+; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
+; AVX1-NEXT:    vmaxss %xmm1, %xmm0, %xmm0
 ; AVX1-NEXT:    vcmpunordss %xmm2, %xmm2, %xmm1
 ; AVX1-NEXT:    vblendvps %xmm1, %xmm2, %xmm0, %xmm0
 ; AVX1-NEXT:    callq __truncsfhf2@PLT
@@ -1619,13 +1615,13 @@ define <4 x half> @test_fmaximum_v4f16(<4 x half> %x, <4 x half> %y) {
 ; AVX1-NEXT:    js .LBB33_10
 ; AVX1-NEXT:  # %bb.11:
 ; AVX1-NEXT:    vmovdqa %xmm0, %xmm1
-; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 16-byte Reload
+; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm0 # 16-byte Reload
 ; AVX1-NEXT:    jmp .LBB33_12
 ; AVX1-NEXT:  .LBB33_10:
 ; AVX1-NEXT:    vmovdqa {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
-; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
 ; AVX1-NEXT:  .LBB33_12:
-; AVX1-NEXT:    vmaxss %xmm1, %xmm2, %xmm0
+; AVX1-NEXT:    vmovdqa %xmm0, %xmm2
+; AVX1-NEXT:    vmaxss %xmm1, %xmm0, %xmm0
 ; AVX1-NEXT:    vcmpunordss %xmm2, %xmm2, %xmm1
 ; AVX1-NEXT:    vblendvps %xmm1, %xmm2, %xmm0, %xmm0
 ; AVX1-NEXT:    callq __truncsfhf2@PLT

@@ -445,19 +445,18 @@ define dso_local void @TestCopySign(ptr noalias nocapture sret({ fp128, fp128 })
 ; SSE-NEXT:    movaps %xmm0, %xmm1
 ; SSE-NEXT:    callq __subtf3@PLT
 ; SSE-NEXT:    testl %ebp, %ebp
-; SSE-NEXT:    jle .LBB10_1
-; SSE-NEXT:  # %bb.2: # %if.then
+; SSE-NEXT:    jle .LBB10_2
+; SSE-NEXT:  # %bb.1: # %if.then
 ; SSE-NEXT:    movaps %xmm0, %xmm1
 ; SSE-NEXT:    andps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm1
 ; SSE-NEXT:    movaps (%rsp), %xmm0 # 16-byte Reload
-; SSE-NEXT:    jmp .LBB10_3
-; SSE-NEXT:  .LBB10_1:
-; SSE-NEXT:    movaps (%rsp), %xmm1 # 16-byte Reload
-; SSE-NEXT:  .LBB10_3: # %cleanup
-; SSE-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm2 # 16-byte Reload
-; SSE-NEXT:    andps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm2
+; SSE-NEXT:    movaps %xmm1, (%rsp) # 16-byte Spill
+; SSE-NEXT:  .LBB10_2: # %cleanup
+; SSE-NEXT:    movaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
+; SSE-NEXT:    andps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm1
 ; SSE-NEXT:    andps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm0
-; SSE-NEXT:    orps %xmm2, %xmm0
+; SSE-NEXT:    orps %xmm1, %xmm0
+; SSE-NEXT:    movaps (%rsp), %xmm1 # 16-byte Reload
 ; SSE-NEXT:    movaps %xmm1, (%rbx)
 ; SSE-NEXT:    movaps %xmm0, 16(%rbx)
 ; SSE-NEXT:    movq %rbx, %rax
@@ -482,19 +481,18 @@ define dso_local void @TestCopySign(ptr noalias nocapture sret({ fp128, fp128 })
 ; AVX-NEXT:    vmovaps %xmm0, %xmm1
 ; AVX-NEXT:    callq __subtf3@PLT
 ; AVX-NEXT:    testl %ebp, %ebp
-; AVX-NEXT:    jle .LBB10_1
-; AVX-NEXT:  # %bb.2: # %if.then
-; AVX-NEXT:    vandps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm0, %xmm2
+; AVX-NEXT:    jle .LBB10_2
+; AVX-NEXT:  # %bb.1: # %if.then
+; AVX-NEXT:    vandps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm0, %xmm1
 ; AVX-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
-; AVX-NEXT:    jmp .LBB10_3
-; AVX-NEXT:  .LBB10_1:
-; AVX-NEXT:    vmovaps (%rsp), %xmm2 # 16-byte Reload
-; AVX-NEXT:  .LBB10_3: # %cleanup
+; AVX-NEXT:    vmovaps %xmm1, (%rsp) # 16-byte Spill
+; AVX-NEXT:  .LBB10_2: # %cleanup
 ; AVX-NEXT:    vmovaps {{[-0-9]+}}(%r{{[sb]}}p), %xmm1 # 16-byte Reload
 ; AVX-NEXT:    vandps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm1, %xmm1
 ; AVX-NEXT:    vandps {{\.?LCPI[0-9]+_[0-9]+}}(%rip), %xmm0, %xmm0
 ; AVX-NEXT:    vorps %xmm1, %xmm0, %xmm0
-; AVX-NEXT:    vmovaps %xmm2, (%rbx)
+; AVX-NEXT:    vmovaps (%rsp), %xmm1 # 16-byte Reload
+; AVX-NEXT:    vmovaps %xmm1, (%rbx)
 ; AVX-NEXT:    vmovaps %xmm0, 16(%rbx)
 ; AVX-NEXT:    movq %rbx, %rax
 ; AVX-NEXT:    addq $40, %rsp

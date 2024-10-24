@@ -1942,11 +1942,10 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  # %bb.16: # %entry
 ; AIX32-NEXT:    srw 3, 4, 22
 ; AIX32-NEXT:    lwsync
-; AIX32-NEXT:    li 7, 11
 ; AIX32-NEXT:    clrlwi 3, 3, 24
 ; AIX32-NEXT:    stb 3, 0(27)
-; AIX32-NEXT:    sync
 ; AIX32-NEXT:    li 3, 0
+; AIX32-NEXT:    sync
 ; AIX32-NEXT:    ori 3, 3, 65535
 ; AIX32-NEXT:    slw 3, 3, 18
 ; AIX32-NEXT:  L..BB1_17: # %entry
@@ -1979,13 +1978,14 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  # %bb.20: # %entry
 ; AIX32-NEXT:    srw 3, 4, 15
 ; AIX32-NEXT:    lwsync
+; AIX32-NEXT:    li 5, 11
 ; AIX32-NEXT:    clrlwi 3, 3, 16
 ; AIX32-NEXT:    sth 3, 0(19)
 ; AIX32-NEXT:    sync
 ; AIX32-NEXT:  L..BB1_21: # %entry
 ; AIX32-NEXT:    #
 ; AIX32-NEXT:    lwarx 3, 0, 29
-; AIX32-NEXT:    sub 4, 3, 7
+; AIX32-NEXT:    sub 4, 3, 5
 ; AIX32-NEXT:    stwcx. 4, 0, 29
 ; AIX32-NEXT:    bne 0, L..BB1_21
 ; AIX32-NEXT:  # %bb.22: # %entry
@@ -1995,7 +1995,7 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  L..BB1_23: # %entry
 ; AIX32-NEXT:    #
 ; AIX32-NEXT:    lwarx 3, 0, 28
-; AIX32-NEXT:    sub 4, 3, 7
+; AIX32-NEXT:    sub 4, 3, 5
 ; AIX32-NEXT:    stwcx. 4, 0, 28
 ; AIX32-NEXT:    bne 0, L..BB1_23
 ; AIX32-NEXT:  # %bb.24: # %entry
@@ -2233,6 +2233,7 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:    li 3, 255
 ; AIX32-NEXT:    stw 4, 4(30)
 ; AIX32-NEXT:    sync
+; AIX32-NEXT:    li 7, 11
 ; AIX32-NEXT:    slw 3, 3, 26
 ; AIX32-NEXT:  L..BB1_49: # %entry
 ; AIX32-NEXT:    #
@@ -2246,12 +2247,11 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  # %bb.50: # %entry
 ; AIX32-NEXT:    srw 3, 4, 26
 ; AIX32-NEXT:    lwsync
-; AIX32-NEXT:    li 7, 11
 ; AIX32-NEXT:    lwz 4, 64(1) # 4-byte Folded Reload
 ; AIX32-NEXT:    clrlwi 3, 3, 24
 ; AIX32-NEXT:    stb 3, 0(4)
-; AIX32-NEXT:    sync
 ; AIX32-NEXT:    li 3, 255
+; AIX32-NEXT:    sync
 ; AIX32-NEXT:    slw 3, 3, 22
 ; AIX32-NEXT:  L..BB1_51: # %entry
 ; AIX32-NEXT:    #
@@ -2372,11 +2372,10 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  # %bb.64: # %entry
 ; AIX32-NEXT:    srw 3, 4, 22
 ; AIX32-NEXT:    lwsync
-; AIX32-NEXT:    li 7, 11
 ; AIX32-NEXT:    clrlwi 3, 3, 24
 ; AIX32-NEXT:    stb 3, 0(27)
-; AIX32-NEXT:    sync
 ; AIX32-NEXT:    li 3, 0
+; AIX32-NEXT:    sync
 ; AIX32-NEXT:    ori 3, 3, 65535
 ; AIX32-NEXT:    slw 3, 3, 18
 ; AIX32-NEXT:  L..BB1_65: # %entry
@@ -2409,13 +2408,14 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  # %bb.68: # %entry
 ; AIX32-NEXT:    srw 3, 4, 15
 ; AIX32-NEXT:    lwsync
+; AIX32-NEXT:    li 5, 11
 ; AIX32-NEXT:    clrlwi 3, 3, 16
 ; AIX32-NEXT:    sth 3, 0(19)
 ; AIX32-NEXT:    sync
 ; AIX32-NEXT:  L..BB1_69: # %entry
 ; AIX32-NEXT:    #
 ; AIX32-NEXT:    lwarx 3, 0, 29
-; AIX32-NEXT:    and 4, 7, 3
+; AIX32-NEXT:    and 4, 5, 3
 ; AIX32-NEXT:    stwcx. 4, 0, 29
 ; AIX32-NEXT:    bne 0, L..BB1_69
 ; AIX32-NEXT:  # %bb.70: # %entry
@@ -2425,7 +2425,7 @@ define dso_local void @test_fetch_and_op() local_unnamed_addr #0 {
 ; AIX32-NEXT:  L..BB1_71: # %entry
 ; AIX32-NEXT:    #
 ; AIX32-NEXT:    lwarx 3, 0, 28
-; AIX32-NEXT:    and 4, 7, 3
+; AIX32-NEXT:    and 4, 5, 3
 ; AIX32-NEXT:    stwcx. 4, 0, 28
 ; AIX32-NEXT:    bne 0, L..BB1_71
 ; AIX32-NEXT:  # %bb.72: # %entry
@@ -3819,8 +3819,6 @@ define dso_local void @test_op_and_fetch() local_unnamed_addr #0 {
 ; AIX32-NEXT:    stwcx. 4, 0, 13
 ; AIX32-NEXT:    bne 0, L..BB2_57
 ; AIX32-NEXT:  # %bb.58: # %entry
-; AIX32-NEXT:    stw 23, 56(1) # 4-byte Folded Spill
-; AIX32-NEXT:    stw 27, 60(1) # 4-byte Folded Spill
 ; AIX32-NEXT:    lwsync
 ; AIX32-NEXT:    stw 4, 0(13)
 ; AIX32-NEXT:    lbz 3, 0(26)
@@ -3832,12 +3830,15 @@ define dso_local void @test_op_and_fetch() local_unnamed_addr #0 {
 ; AIX32-NEXT:    stwcx. 4, 0, 25
 ; AIX32-NEXT:    bne 0, L..BB2_59
 ; AIX32-NEXT:  # %bb.60: # %entry
+; AIX32-NEXT:    stw 20, 56(1) # 4-byte Folded Spill
+; AIX32-NEXT:    stw 23, 60(1) # 4-byte Folded Spill
 ; AIX32-NEXT:    lwsync
 ; AIX32-NEXT:    stw 4, 0(25)
 ; AIX32-NEXT:    li 4, 0
 ; AIX32-NEXT:    lbz 29, 0(26)
 ; AIX32-NEXT:    li 6, 5
 ; AIX32-NEXT:    mr 3, 31
+; AIX32-NEXT:    mr 20, 27
 ; AIX32-NEXT:    mr 5, 29
 ; AIX32-NEXT:    bl .__atomic_fetch_nand_8[PR]
 ; AIX32-NEXT:    nop
@@ -3933,15 +3934,16 @@ define dso_local void @test_op_and_fetch() local_unnamed_addr #0 {
 ; AIX32-NEXT:    beq 0, L..BB2_63
 ; AIX32-NEXT:  # %bb.64: # %atomicrmw.end
 ; AIX32-NEXT:    and 3, 4, 23
-; AIX32-NEXT:    li 5, 255
-; AIX32-NEXT:    xor 3, 3, 17
 ; AIX32-NEXT:    stw 17, 0(29)
 ; AIX32-NEXT:    stw 17, 4(29)
 ; AIX32-NEXT:    stw 17, 8(29)
+; AIX32-NEXT:    xor 3, 3, 17
+; AIX32-NEXT:    li 5, 255
 ; AIX32-NEXT:    slw 5, 5, 24
 ; AIX32-NEXT:    stw 3, 12(29)
 ; AIX32-NEXT:    lbz 3, 0(26)
 ; AIX32-NEXT:    sync
+; AIX32-NEXT:    lwz 9, 60(1) # 4-byte Folded Reload
 ; AIX32-NEXT:    slw 4, 3, 24
 ; AIX32-NEXT:  L..BB2_65: # %atomicrmw.end
 ; AIX32-NEXT:    #
@@ -3959,11 +3961,10 @@ define dso_local void @test_op_and_fetch() local_unnamed_addr #0 {
 ; AIX32-NEXT:    clrlwi 4, 4, 24
 ; AIX32-NEXT:    slw 5, 5, 21
 ; AIX32-NEXT:    and 3, 4, 3
-; AIX32-NEXT:    lwz 4, 60(1) # 4-byte Folded Reload
-; AIX32-NEXT:    stb 3, 0(4)
+; AIX32-NEXT:    stb 3, 0(20)
 ; AIX32-NEXT:    lbz 3, 0(26)
 ; AIX32-NEXT:    sync
-; AIX32-NEXT:    lwz 9, 56(1) # 4-byte Folded Reload
+; AIX32-NEXT:    lwz 10, 56(1) # 4-byte Folded Reload
 ; AIX32-NEXT:    slw 4, 3, 21
 ; AIX32-NEXT:  L..BB2_67: # %atomicrmw.end
 ; AIX32-NEXT:    #
@@ -4020,7 +4021,7 @@ define dso_local void @test_op_and_fetch() local_unnamed_addr #0 {
 ; AIX32-NEXT:    lwsync
 ; AIX32-NEXT:    clrlwi 4, 4, 16
 ; AIX32-NEXT:    and 3, 4, 3
-; AIX32-NEXT:    sth 3, 0(20)
+; AIX32-NEXT:    sth 3, 0(10)
 ; AIX32-NEXT:    lbz 3, 0(26)
 ; AIX32-NEXT:    sync
 ; AIX32-NEXT:  L..BB2_73: # %atomicrmw.end

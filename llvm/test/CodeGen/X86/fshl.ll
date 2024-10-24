@@ -341,7 +341,7 @@ define i128 @var_shift_i128(i128 %x, i128 %y, i128 %z) nounwind {
 ; X86-SLOW-NEXT:    testb $32, %al
 ; X86-SLOW-NEXT:    je .LBB6_5
 ; X86-SLOW-NEXT:  .LBB6_4:
-; X86-SLOW-NEXT:    movl %ebx, (%esp) # 4-byte Spill
+; X86-SLOW-NEXT:    movl %ebx, %esi
 ; X86-SLOW-NEXT:    movl %edi, %ebx
 ; X86-SLOW-NEXT:    movl %edx, %edi
 ; X86-SLOW-NEXT:    movl %ecx, %edx
@@ -353,8 +353,8 @@ define i128 @var_shift_i128(i128 %x, i128 %y, i128 %z) nounwind {
 ; X86-SLOW-NEXT:    jne .LBB6_4
 ; X86-SLOW-NEXT:  .LBB6_5:
 ; X86-SLOW-NEXT:    movl %ecx, %ebp
-; X86-SLOW-NEXT:    movl %esi, (%esp) # 4-byte Spill
 ; X86-SLOW-NEXT:  .LBB6_6:
+; X86-SLOW-NEXT:    movl %esi, (%esp) # 4-byte Spill
 ; X86-SLOW-NEXT:    movl %edx, %esi
 ; X86-SLOW-NEXT:    movl %eax, %ecx
 ; X86-SLOW-NEXT:    shll %cl, %esi

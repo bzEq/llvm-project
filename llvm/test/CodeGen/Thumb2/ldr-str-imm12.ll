@@ -30,9 +30,9 @@ define ptr @Manifest(ptr %x, ptr %env, ptr %style, ptr %bthr, ptr %fthr, ptr %ta
 ; CHECK-NEXT:    add.w r10, r7, #8
 ; CHECK-NEXT:    ldrd r8, lr, [r7, #20]
 ; CHECK-NEXT:    movs r5, #0
-; CHECK-NEXT:    cmp r5, #0
+; CHECK-NEXT:    ldrd r12, r6, [r7, #28]
 ; CHECK-NEXT:    ldm.w r10, {r4, r9, r10}
-; CHECK-NEXT:    ldr.w r12, [r7, #28]
+; CHECK-NEXT:    cmp r5, #0
 ; CHECK-NEXT:    ittt ne
 ; CHECK-NEXT:    addne sp, #292
 ; CHECK-NEXT:    popne.w {r8, r10, r11}
@@ -59,16 +59,15 @@ define ptr @Manifest(ptr %x, ptr %env, ptr %style, ptr %bthr, ptr %fthr, ptr %ta
 ; CHECK-NEXT:    str r5, [sp, #28] @ 4-byte Spill
 ; CHECK-NEXT:    ldr r5, [sp, #32] @ 4-byte Reload
 ; CHECK-NEXT:    str.w r11, [r5]
-; CHECK-NEXT:    movs r5, #0
+; CHECK-NEXT:    mov r11, r6
 ; CHECK-NEXT:    ldr r6, [sp, #28] @ 4-byte Reload
+; CHECK-NEXT:    movs r5, #0
 ; CHECK-NEXT:    str r5, [r6]
 ; CHECK-NEXT:    ldr r5, [sp, #32] @ 4-byte Reload
 ; CHECK-NEXT:    str r0, [r5]
-; CHECK-NEXT:    ldr r0, [r7, #32]
 ; CHECK-NEXT:    stm.w sp, {r4, r9, r10}
 ; CHECK-NEXT:    strd r8, lr, [sp, #12]
-; CHECK-NEXT:    str.w r12, [sp, #20]
-; CHECK-NEXT:    str r0, [sp, #24]
+; CHECK-NEXT:    strd r12, r11, [sp, #20]
 ; CHECK-NEXT:    bl _Manifest
 ; CHECK-NEXT:    trap
 ; CHECK-NEXT:  LBB0_4: @ %bb20

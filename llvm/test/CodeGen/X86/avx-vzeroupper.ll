@@ -125,121 +125,34 @@ define <4 x float> @test02(<8 x float> %a, <8 x float> %b) nounwind {
 ;; for this function it should be only once
 
 define <4 x float> @test03(<4 x float> %a, <4 x float> %b) nounwind {
-; VZ-LABEL: test03:
-; VZ:       # %bb.0: # %entry
-; VZ-NEXT:    pushq %rbx
-; VZ-NEXT:    subq $16, %rsp
-; VZ-NEXT:    vaddps %xmm1, %xmm0, %xmm0
-; VZ-NEXT:    vmovaps %xmm0, (%rsp) # 16-byte Spill
-; VZ-NEXT:    .p2align 4
-; VZ-NEXT:  .LBB3_1: # %while.cond
-; VZ-NEXT:    # =>This Inner Loop Header: Depth=1
-; VZ-NEXT:    callq foo
-; VZ-NEXT:    testl %eax, %eax
-; VZ-NEXT:    jne .LBB3_1
-; VZ-NEXT:  # %bb.2: # %for.body.preheader
-; VZ-NEXT:    movl $4, %ebx
-; VZ-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
-; VZ-NEXT:    .p2align 4
-; VZ-NEXT:  .LBB3_3: # %for.body
-; VZ-NEXT:    # =>This Inner Loop Header: Depth=1
-; VZ-NEXT:    callq do_sse
-; VZ-NEXT:    callq do_sse
-; VZ-NEXT:    vmovaps g+16(%rip), %xmm0
-; VZ-NEXT:    callq do_sse
-; VZ-NEXT:    decl %ebx
-; VZ-NEXT:    jne .LBB3_3
-; VZ-NEXT:  # %bb.4: # %for.end
-; VZ-NEXT:    addq $16, %rsp
-; VZ-NEXT:    popq %rbx
-; VZ-NEXT:    retq
-;
-; DISABLE-VZ-LABEL: test03:
-; DISABLE-VZ:       # %bb.0: # %entry
-; DISABLE-VZ-NEXT:    pushq %rbx
-; DISABLE-VZ-NEXT:    subq $16, %rsp
-; DISABLE-VZ-NEXT:    vaddps %xmm1, %xmm0, %xmm0
-; DISABLE-VZ-NEXT:    vmovaps %xmm0, (%rsp) # 16-byte Spill
-; DISABLE-VZ-NEXT:    .p2align 4
-; DISABLE-VZ-NEXT:  .LBB3_1: # %while.cond
-; DISABLE-VZ-NEXT:    # =>This Inner Loop Header: Depth=1
-; DISABLE-VZ-NEXT:    callq foo
-; DISABLE-VZ-NEXT:    testl %eax, %eax
-; DISABLE-VZ-NEXT:    jne .LBB3_1
-; DISABLE-VZ-NEXT:  # %bb.2: # %for.body.preheader
-; DISABLE-VZ-NEXT:    movl $4, %ebx
-; DISABLE-VZ-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
-; DISABLE-VZ-NEXT:    .p2align 4
-; DISABLE-VZ-NEXT:  .LBB3_3: # %for.body
-; DISABLE-VZ-NEXT:    # =>This Inner Loop Header: Depth=1
-; DISABLE-VZ-NEXT:    callq do_sse
-; DISABLE-VZ-NEXT:    callq do_sse
-; DISABLE-VZ-NEXT:    vmovaps g+16(%rip), %xmm0
-; DISABLE-VZ-NEXT:    callq do_sse
-; DISABLE-VZ-NEXT:    decl %ebx
-; DISABLE-VZ-NEXT:    jne .LBB3_3
-; DISABLE-VZ-NEXT:  # %bb.4: # %for.end
-; DISABLE-VZ-NEXT:    addq $16, %rsp
-; DISABLE-VZ-NEXT:    popq %rbx
-; DISABLE-VZ-NEXT:    retq
-;
-; BDVER2-LABEL: test03:
-; BDVER2:       # %bb.0: # %entry
-; BDVER2-NEXT:    pushq %rbx
-; BDVER2-NEXT:    subq $16, %rsp
-; BDVER2-NEXT:    vaddps %xmm1, %xmm0, %xmm0
-; BDVER2-NEXT:    vmovaps %xmm0, (%rsp) # 16-byte Spill
-; BDVER2-NEXT:    .p2align 4
-; BDVER2-NEXT:  .LBB3_1: # %while.cond
-; BDVER2-NEXT:    # =>This Inner Loop Header: Depth=1
-; BDVER2-NEXT:    callq foo
-; BDVER2-NEXT:    testl %eax, %eax
-; BDVER2-NEXT:    jne .LBB3_1
-; BDVER2-NEXT:  # %bb.2: # %for.body.preheader
-; BDVER2-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
-; BDVER2-NEXT:    movl $4, %ebx
-; BDVER2-NEXT:    .p2align 4
-; BDVER2-NEXT:  .LBB3_3: # %for.body
-; BDVER2-NEXT:    # =>This Inner Loop Header: Depth=1
-; BDVER2-NEXT:    callq do_sse
-; BDVER2-NEXT:    callq do_sse
-; BDVER2-NEXT:    vmovaps g+16(%rip), %xmm0
-; BDVER2-NEXT:    callq do_sse
-; BDVER2-NEXT:    decl %ebx
-; BDVER2-NEXT:    jne .LBB3_3
-; BDVER2-NEXT:  # %bb.4: # %for.end
-; BDVER2-NEXT:    addq $16, %rsp
-; BDVER2-NEXT:    popq %rbx
-; BDVER2-NEXT:    retq
-;
-; BTVER2-LABEL: test03:
-; BTVER2:       # %bb.0: # %entry
-; BTVER2-NEXT:    pushq %rbx
-; BTVER2-NEXT:    subq $16, %rsp
-; BTVER2-NEXT:    vaddps %xmm1, %xmm0, %xmm0
-; BTVER2-NEXT:    vmovaps %xmm0, (%rsp) # 16-byte Spill
-; BTVER2-NEXT:    .p2align 4
-; BTVER2-NEXT:  .LBB3_1: # %while.cond
-; BTVER2-NEXT:    # =>This Inner Loop Header: Depth=1
-; BTVER2-NEXT:    callq foo
-; BTVER2-NEXT:    testl %eax, %eax
-; BTVER2-NEXT:    jne .LBB3_1
-; BTVER2-NEXT:  # %bb.2: # %for.body.preheader
-; BTVER2-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
-; BTVER2-NEXT:    movl $4, %ebx
-; BTVER2-NEXT:    .p2align 4
-; BTVER2-NEXT:  .LBB3_3: # %for.body
-; BTVER2-NEXT:    # =>This Inner Loop Header: Depth=1
-; BTVER2-NEXT:    callq do_sse
-; BTVER2-NEXT:    callq do_sse
-; BTVER2-NEXT:    vmovaps g+16(%rip), %xmm0
-; BTVER2-NEXT:    callq do_sse
-; BTVER2-NEXT:    decl %ebx
-; BTVER2-NEXT:    jne .LBB3_3
-; BTVER2-NEXT:  # %bb.4: # %for.end
-; BTVER2-NEXT:    addq $16, %rsp
-; BTVER2-NEXT:    popq %rbx
-; BTVER2-NEXT:    retq
+; ALL-LABEL: test03:
+; ALL:       # %bb.0: # %entry
+; ALL-NEXT:    pushq %rbx
+; ALL-NEXT:    subq $16, %rsp
+; ALL-NEXT:    vaddps %xmm1, %xmm0, %xmm0
+; ALL-NEXT:    vmovaps %xmm0, (%rsp) # 16-byte Spill
+; ALL-NEXT:    .p2align 4
+; ALL-NEXT:  .LBB3_1: # %while.cond
+; ALL-NEXT:    # =>This Inner Loop Header: Depth=1
+; ALL-NEXT:    callq foo
+; ALL-NEXT:    vmovaps (%rsp), %xmm0 # 16-byte Reload
+; ALL-NEXT:    testl %eax, %eax
+; ALL-NEXT:    jne .LBB3_1
+; ALL-NEXT:  # %bb.2: # %for.body.preheader
+; ALL-NEXT:    movl $4, %ebx
+; ALL-NEXT:    .p2align 4
+; ALL-NEXT:  .LBB3_3: # %for.body
+; ALL-NEXT:    # =>This Inner Loop Header: Depth=1
+; ALL-NEXT:    callq do_sse
+; ALL-NEXT:    callq do_sse
+; ALL-NEXT:    vmovaps g+16(%rip), %xmm0
+; ALL-NEXT:    callq do_sse
+; ALL-NEXT:    decl %ebx
+; ALL-NEXT:    jne .LBB3_3
+; ALL-NEXT:  # %bb.4: # %for.end
+; ALL-NEXT:    addq $16, %rsp
+; ALL-NEXT:    popq %rbx
+; ALL-NEXT:    retq
 entry:
   %add.i = fadd <4 x float> %a, %b
   br label %while.cond

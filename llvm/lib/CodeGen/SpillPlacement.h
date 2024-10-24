@@ -67,7 +67,7 @@ class SpillPlacement : public MachineFunctionPass {
 
   /// List of nodes that need to be updated in ::iterate.
   // SparseSet<unsigned> TodoList;
-  using PQueue = std::priority_queue<std::pair<size_t, unsigned>>;
+  using PQueue = std::priority_queue<std::pair<uint64_t, unsigned>>;
   PQueue TodoList;
 
 public:

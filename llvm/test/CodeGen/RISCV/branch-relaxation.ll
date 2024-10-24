@@ -2918,9 +2918,11 @@ define void @relax_jal_spill_32_restore_block_correspondence() {
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    li ra, 1
 ; CHECK-RV64-NEXT:    #NO_APP
+; CHECK-RV64-NEXT:    sd ra, 16(sp) # 8-byte Folded Spill
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    li t0, 5
 ; CHECK-RV64-NEXT:    #NO_APP
+; CHECK-RV64-NEXT:    sd t0, 8(sp) # 8-byte Folded Spill
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    li t1, 6
 ; CHECK-RV64-NEXT:    #NO_APP
@@ -2999,9 +3001,9 @@ define void @relax_jal_spill_32_restore_block_correspondence() {
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    li t6, 31
 ; CHECK-RV64-NEXT:    #NO_APP
-; CHECK-RV64-NEXT:    sd t6, 8(sp) # 8-byte Folded Spill
+; CHECK-RV64-NEXT:    mv t0, t6
 ; CHECK-RV64-NEXT:    sext.w t6, t6
-; CHECK-RV64-NEXT:    sd t5, 16(sp) # 8-byte Folded Spill
+; CHECK-RV64-NEXT:    mv ra, t5
 ; CHECK-RV64-NEXT:    sext.w t5, t5
 ; CHECK-RV64-NEXT:    bne t5, t6, .LBB6_2
 ; CHECK-RV64-NEXT:  .LBB6_1: # %dest_1
@@ -3021,9 +3023,13 @@ define void @relax_jal_spill_32_restore_block_correspondence() {
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # dest 3
 ; CHECK-RV64-NEXT:    #NO_APP
+; CHECK-RV64-NEXT:    mv t5, ra
+; CHECK-RV64-NEXT:    mv t6, t0
+; CHECK-RV64-NEXT:    ld ra, 16(sp) # 8-byte Folded Reload
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # reg use ra
 ; CHECK-RV64-NEXT:    #NO_APP
+; CHECK-RV64-NEXT:    ld t0, 8(sp) # 8-byte Folded Reload
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # reg use t0
 ; CHECK-RV64-NEXT:    #NO_APP
@@ -3099,11 +3105,9 @@ define void @relax_jal_spill_32_restore_block_correspondence() {
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # reg use t4
 ; CHECK-RV64-NEXT:    #NO_APP
-; CHECK-RV64-NEXT:    ld t5, 16(sp) # 8-byte Folded Reload
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # reg use t5
 ; CHECK-RV64-NEXT:    #NO_APP
-; CHECK-RV64-NEXT:    ld t6, 8(sp) # 8-byte Folded Reload
 ; CHECK-RV64-NEXT:    #APP
 ; CHECK-RV64-NEXT:    # reg use t6
 ; CHECK-RV64-NEXT:    #NO_APP

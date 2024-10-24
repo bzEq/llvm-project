@@ -65,19 +65,19 @@ define i32 @decode_sb(ptr %t, i32 %bl, i32 %_msprop1966, i32 %sub.i, i64 %idxpro
 ; CHECK-NEXT:    leaq (%rax,%rdx), %rsi
 ; CHECK-NEXT:    addq $1248, %rsi # imm = 0x4E0
 ; CHECK-NEXT:    movq %rcx, 0
-; CHECK-NEXT:    movq %rdi, %r14
 ; CHECK-NEXT:    movl %r8d, (%rdi)
 ; CHECK-NEXT:    xorl %eax, %eax
+; CHECK-NEXT:    movq %rdi, %r14
 ; CHECK-NEXT:    xorl %edi, %edi
 ; CHECK-NEXT:    xorl %edx, %edx
 ; CHECK-NEXT:    callq *%rax
+; CHECK-NEXT:    movq %r14, %rdi
 ; CHECK-NEXT:    movb $1, %al
 ; CHECK-NEXT:    testb %al, %al
+; CHECK-NEXT:    movabsq $87960930222080, %r14 # imm = 0x500000000000
 ; CHECK-NEXT:    je .LBB0_4
 ; CHECK-NEXT:  # %bb.5: # %bb19
 ; CHECK-NEXT:    testb $1, %bl
-; CHECK-NEXT:    movq %r14, %rdi
-; CHECK-NEXT:    movabsq $87960930222080, %r14 # imm = 0x500000000000
 ; CHECK-NEXT:    jne .LBB0_7
 ; CHECK-NEXT:  .LBB0_6: # %if.end69
 ; CHECK-NEXT:    movl %r13d, 0

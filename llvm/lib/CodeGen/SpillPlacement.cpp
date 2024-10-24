@@ -195,7 +195,7 @@ struct SpillPlacement::Node {
       // Neighbors that already have the same value are not going to
       // change because of this node changing.
       if (Value != nodes[n].Value)
-        List.push({~EB->getBlocks(n).size(), n});
+        List.push({~nodes[n].SumLinkWeights.getFrequency(), n});
     }
   }
 };
@@ -230,7 +230,7 @@ void SpillPlacement::releaseMemory() {
 
 /// activate - mark node n as active if it wasn't already.
 void SpillPlacement::activate(unsigned n) {
-  TodoList.push({~bundles->getBlocks(n).size(), n});
+  TodoList.push({~nodes[n].SumLinkWeights.getFrequency(), n});
   if (ActiveNodes->test(n))
     return;
   ActiveNodes->set(n);
