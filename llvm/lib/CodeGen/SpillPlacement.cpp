@@ -82,6 +82,8 @@ struct SpillPlacement::Node {
   /// variable should go in a register through this bundle.
   int Value;
 
+  bool Fixed = false;
+
   using LinkVector = SmallVector<std::pair<BlockFrequency, unsigned>, 4>;
 
   /// Links - (Weight, BundleNo) for all transparent blocks connecting to other
@@ -90,10 +92,6 @@ struct SpillPlacement::Node {
 
   /// SumLinkWeights - Cached sum of the weights of all links + ThresHold.
   BlockFrequency SumLinkWeights;
-
-  bool isFixed() const {
-    return BiasN == BlockFrequency::max();
-  }
 
   /// preferReg - Return true when this node prefers to be in a register.
   bool preferReg() const {
@@ -115,6 +113,7 @@ struct SpillPlacement::Node {
     BiasN = BlockFrequency(0);
     BiasP = BlockFrequency(0);
     Value = 0;
+    Fixed = false;
     SumLinkWeights = Threshold;
     Links.clear();
   }
@@ -148,6 +147,7 @@ struct SpillPlacement::Node {
     case MustSpill:
       BiasN = BlockFrequency::max();
       Value = -1;
+      Fixed = true;
       break;
     }
   }
@@ -155,7 +155,7 @@ struct SpillPlacement::Node {
   /// update - Recompute Value from Bias and Links. Return true when node
   /// preference changes.
   bool update(const Node nodes[], BlockFrequency Threshold) {
-    if (isFixed())
+    if (Fixed)
         return false;
     // Compute the weighted sum of inputs.
     BlockFrequency SumN = BlockFrequency(0);
