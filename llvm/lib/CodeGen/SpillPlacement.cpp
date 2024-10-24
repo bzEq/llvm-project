@@ -82,8 +82,6 @@ struct SpillPlacement::Node {
   /// variable should go in a register through this bundle.
   int Value;
 
-  bool Fixed;
-
   using LinkVector = SmallVector<std::pair<BlockFrequency, unsigned>, 4>;
 
   /// Links - (Weight, BundleNo) for all transparent blocks connecting to other
@@ -92,6 +90,10 @@ struct SpillPlacement::Node {
 
   /// SumLinkWeights - Cached sum of the weights of all links + ThresHold.
   BlockFrequency SumLinkWeights;
+
+  bool isFixed() const {
+    return BiasN == BlockFrequency::max();
+  }
 
   /// preferReg - Return true when this node prefers to be in a register.
   bool preferReg() const {
@@ -104,7 +106,7 @@ struct SpillPlacement::Node {
     // We must spill if Bias < -sum(weights) or the MustSpill flag was set.
     // BiasN is saturated when MustSpill is set, make sure this still returns
     // true when the RHS saturates. Note that SumLinkWeights includes Threshold.
-    return Value <= 0;
+    return BiasN >= BiasP + SumLinkWeights;
   }
 
   /// clear - Reset per-query data, but preserve frequencies that only depend on
@@ -113,7 +115,6 @@ struct SpillPlacement::Node {
     BiasN = BlockFrequency(0);
     BiasP = BlockFrequency(0);
     Value = 0;
-    Fixed = false;
     SumLinkWeights = Threshold;
     Links.clear();
   }
@@ -147,7 +148,6 @@ struct SpillPlacement::Node {
     case MustSpill:
       BiasN = BlockFrequency::max();
       Value = -1;
-      Fixed = true;
       break;
     }
   }
@@ -155,7 +155,7 @@ struct SpillPlacement::Node {
   /// update - Recompute Value from Bias and Links. Return true when node
   /// preference changes.
   bool update(const Node nodes[], BlockFrequency Threshold) {
-    if (Fixed)
+    if (isFixed())
         return false;
     // Compute the weighted sum of inputs.
     BlockFrequency SumN = BlockFrequency(0);
@@ -187,14 +187,14 @@ struct SpillPlacement::Node {
     return Before != preferReg();
   }
 
-  void getDissentingNeighbors(PQueue &List,
+  void getDissentingNeighbors(SparseSet<unsigned> &List,
                               const Node nodes[]) const {
     for (const auto &Elt : Links) {
       unsigned n = Elt.second;
       // Neighbors that already have the same value are not going to
       // change because of this node changing.
       if (Value != nodes[n].Value)
-        List.push(n);
+        List.insert(n);
     }
   }
 };
@@ -205,8 +205,8 @@ bool SpillPlacement::runOnMachineFunction(MachineFunction &mf) {
 
   assert(!nodes && "Leaking node array");
   nodes = new Node[bundles->getNumBundles()];
-  TodoList = PQueue{};
-  // TodoList.setUniverse(bundles->getNumBundles());
+  TodoList.clear();
+  TodoList.setUniverse(bundles->getNumBundles());
 
   // Compute total ingoing and outgoing block frequencies for all bundles.
   BlockFrequencies.resize(mf.getNumBlockIDs());
@@ -224,12 +224,12 @@ bool SpillPlacement::runOnMachineFunction(MachineFunction &mf) {
 void SpillPlacement::releaseMemory() {
   delete[] nodes;
   nodes = nullptr;
-  TodoList = PQueue{};
+  TodoList.clear();
 }
 
 /// activate - mark node n as active if it wasn't already.
 void SpillPlacement::activate(unsigned n) {
-  TodoList.push(n);
+  TodoList.insert(n);
   if (ActiveNodes->test(n))
     return;
   ActiveNodes->set(n);
@@ -355,8 +355,7 @@ void SpillPlacement::iterate() {
   // The call to ::update will add the nodes that changed into the todolist.
   unsigned Limit = bundles->getNumBundles() * 10;
   while(Limit-- > 0 && !TodoList.empty()) {
-    unsigned n = TodoList.top();
-    TodoList.pop();
+    unsigned n = TodoList.pop_back_val();
     if (!update(n))
       continue;
     if (nodes[n].preferReg())
@@ -366,7 +365,7 @@ void SpillPlacement::iterate() {
 
 void SpillPlacement::prepare(BitVector &RegBundles) {
   RecentPositive.clear();
-  TodoList = PQueue{};
+  TodoList.clear();
   // Reuse RegBundles as our ActiveNodes vector.
   ActiveNodes = &RegBundles;
   ActiveNodes->clear();
