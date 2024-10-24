@@ -30,12 +30,13 @@
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/SparseSet.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
+#include "llvm/CodeGen/EdgeBundles.h"
 #include "llvm/Support/BlockFrequency.h"
+#include <queue>
 
 namespace llvm {
 
 class BitVector;
-class EdgeBundles;
 class MachineBlockFrequencyInfo;
 class MachineFunction;
 
@@ -65,12 +66,17 @@ class SpillPlacement : public MachineFunctionPass {
   BlockFrequency Threshold;
 
   /// List of nodes that need to be updated in ::iterate.
-  SparseSet<unsigned> TodoList;
+  // SparseSet<unsigned> TodoList;
+  using PQueue = std::priority_queue<unsigned, SmallVector<unsigned, 16>, std::function<bool(unsigned, unsigned)>>;
+  PQueue TodoList;
 
 public:
   static char ID; // Pass identification, replacement for typeid.
 
-  SpillPlacement() : MachineFunctionPass(ID) {}
+  SpillPlacement()
+      : MachineFunctionPass(ID), TodoList([this](unsigned L, unsigned R) {
+          return bundles->getBlocks(L).size() > bundles->getBlocks(R).size();
+        }) {}
   ~SpillPlacement() override { releaseMemory(); }
 
   /// BorderConstraint - A basic block has separate constraints for entry and
