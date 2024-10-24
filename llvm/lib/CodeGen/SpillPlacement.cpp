@@ -104,7 +104,7 @@ struct SpillPlacement::Node {
     // We must spill if Bias < -sum(weights) or the MustSpill flag was set.
     // BiasN is saturated when MustSpill is set, make sure this still returns
     // true when the RHS saturates. Note that SumLinkWeights includes Threshold.
-    return BiasN >= BiasP + SumLinkWeights;
+    return Value <= 0;
   }
 
   /// clear - Reset per-query data, but preserve frequencies that only depend on
