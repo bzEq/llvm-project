@@ -245,12 +245,12 @@ void SpillPlacement::activate(unsigned n) {
   // expanding the region through the bundle. This helps compile time by
   // limiting the number of blocks visited and the number of links in the
   // Hopfield network.
-  if (bundles->getBlocks(n).size() > 100) {
-    nodes[n].BiasP = BlockFrequency(0);
-    BlockFrequency BiasN = MBFI->getEntryFreq();
-    BiasN >>= 4;
-    nodes[n].BiasN = BiasN;
-  }
+  // if (bundles->getBlocks(n).size() > 100) {
+  //   nodes[n].BiasP = BlockFrequency(0);
+  //   BlockFrequency BiasN = MBFI->getEntryFreq();
+  //   BiasN >>= 4;
+  //   nodes[n].BiasN = BiasN;
+  // }
 }
 
 /// Set the threshold for a given entry frequency.
@@ -354,7 +354,8 @@ void SpillPlacement::iterate() {
   // to addConstraints, addLinks, and co.
   // Update the network energy starting at this new frontier.
   // The call to ::update will add the nodes that changed into the todolist.
-  unsigned Limit = bundles->getNumBundles() * 10;
+  // unsigned Limit = bundles->getNumBundles() * 100;
+  unsigned Limit = ~0U;
   while(Limit-- > 0 && !TodoList.empty()) {
     unsigned n = TodoList.top().second;
     TodoList.pop();
